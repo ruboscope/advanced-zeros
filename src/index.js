@@ -1,18 +1,42 @@
 module.exports = function getZerosCount(number, base) {
-  // debugger;
-  // your implementation
-  var count = 0;
-  var n = 2;
-  var halfBase = 0;
-  while (base % n != 0) {
-    n++;
-  }
-  halfBase = base == 2 ? 2 : base / n;
+  //thx https://github.com/egorzekov for article http://mathforum.org/library/drmath/view/66749.html
 
-  //простая задача, стандартная на алгоритмы. Нам необходимо подсчитать количество 5-к в числе number(т.к. 0 дает только произведение 2*5, 2 априори больше(в числах от 1 до 10, только две 5-ки и пять двоек во множителях)). Поэтому мы делим нацело число на 5 с округлением вниз. Т.К. числа включают в себя еще 5-ки(например в числе 25 не одна 5-ка, а две), то проджаем в цикле делить остатки на 5, до тех пор пока не получим число меньше 5.
-  while (number >= halfBase) {
-    number = Math.floor(number / halfBase);
-    count += number;
+  var count = []; //массив в котором определяется количество нулей для каждого делителя базы, из него выбрать надо минимальное значение 
+  var baseDivisors = []; // массив, который содержит простые делители базы
+  var repeatDivisor = 1;
+
+  baseDivisors = getAllFactorsFor(base);
+
+  for (var i = 0; i < baseDivisors.length; i++) {
+    var currDivisor = baseDivisors[i];
+    var tempNumber = number;
+    var tempCount = 0;
+    if (baseDivisors[i - 1] == currDivisor) {
+      repeatDivisor++;
+      continue;
+    }
+    else if (i > 0) {
+      count[count.length - 1] = Math.floor(count[count.length - 1] / repeatDivisor);
+      repeatDivisor = 1;
+    }
+    while (tempNumber >= currDivisor) {
+      tempNumber = Math.floor(tempNumber / currDivisor);
+      tempCount += tempNumber;
+    }
+    count.push(tempCount);
   }
-  return count;
+  if (repeatDivisor > 1) count[count.length - 1] = Math.floor(count[count.length - 1] / repeatDivisor);
+  return Math.min(...count);
+}
+
+function getAllFactorsFor(remainder) {
+  var factors = [], i;
+
+  for (i = 2; i <= remainder; i++) {
+    while ((remainder % i) === 0) {
+      factors.push(i);
+      remainder /= i;
+    }
+  }
+  return factors;
 }
