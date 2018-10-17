@@ -1,42 +1,31 @@
 module.exports = function getZerosCount(number, base) {
-  //thx https://github.com/egorzekov for article http://mathforum.org/library/drmath/view/66749.html
+  // your implementation
 
-  var count = []; //массив в котором определяется количество нулей для каждого делителя базы, из него выбрать надо минимальное значение 
-  var baseDivisors = []; // массив, который содержит простые делители базы
-  var repeatDivisor = 1;
+  // using https://math.stackexchange.com/questions/226868/number-of-trailing-zeros-in-a-factorial-in-base-b
+  let tempBase = base;
+  let maxNumber = Number.MAX_VALUE; //  Самое большое число
 
-  baseDivisors = getAllFactorsFor(base);
+  for (let i = 2; i <= tempBase; i++) { //  т.к. база начинается с двойки
+    if (tempBase % i === 0) {
+      let denominator = 0; //  p in formula
 
-  for (var i = 0; i < baseDivisors.length; i++) {
-    var currDivisor = baseDivisors[i];
-    var tempNumber = number;
-    var tempCount = 0;
-    if (baseDivisors[i - 1] == currDivisor) {
-      repeatDivisor++;
-      continue;
-    }
-    else if (i > 0) {
-      count[count.length - 1] = Math.floor(count[count.length - 1] / repeatDivisor);
-      repeatDivisor = 1;
-    }
-    while (tempNumber >= currDivisor) {
-      tempNumber = Math.floor(tempNumber / currDivisor);
-      tempCount += tempNumber;
-    }
-    count.push(tempCount);
-  }
-  if (repeatDivisor > 1) count[count.length - 1] = Math.floor(count[count.length - 1] / repeatDivisor);
-  return Math.min(...count);
-}
+      while (tempBase % i === 0) {
+        tempBase /= i; //  Получаем нижний порог базы 
+        denominator++;
+      }
 
-function getAllFactorsFor(remainder) {
-  var factors = [], i;
+      let innerRes = Math.floor(number / i);
 
-  for (i = 2; i <= remainder; i++) {
-    while ((remainder % i) === 0) {
-      factors.push(i);
-      remainder /= i;
+      let count = 0;
+      while (innerRes > 0) {
+        count += innerRes;
+        innerRes = Math.floor(innerRes / i);
+      }
+
+      maxNumber = Math.min(maxNumber, Math.floor(count / denominator));
     }
   }
-  return factors;
+
+  return maxNumber;
+
 }
